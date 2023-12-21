@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  user
+}
+
+enum View {
+  board
+  list
+  timeline
+  calendar
+}
+
+model Users {
+  id         String    @id @default(uuid())
+  email      String    @unique
+  password   String
+  name       String
+  avatar_url String    @default("")
+  role       Role      @default(user)
+  Task       Tasks[]
+  view       View      @default(board)
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+}
+
+model Cards {
+  id         String   @id @default(uuid())
+  name       String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  Tasks      Tasks[]
+}
+
+model Priorities {
+  id         String   @id @default(uuid())
+  name       String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  Tasks      Tasks[]
+}
+
+model Tasks {
+  id          String     @id @default(uuid())
+  title       String
+  description String
+  final_date  DateTime
+  user_id     String     @default("")
+  users       Users      @relation(fields: [user_id], references: [id])
+  priority_id String     @default("")
+  priorities  Priorities @relation(fields: [priority_id], references: [id])
+  card_id     String     @default("")
+  cards       Cards      @relation(fields: [card_id], references: [id])
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+}
